@@ -10,6 +10,8 @@ namespace LocalTriviaProject
     {
         static Dictionary<int, BoardNode> board;
         static Dictionary<int, Card> deck = CardParser.parseAndCreateDictionary();
+        static List<int> playingDeck = new List<int>();
+        static string ShuffledOrder;
         static int purpleStart;
         static int orangeStart;
         static int greenStart;
@@ -20,6 +22,7 @@ namespace LocalTriviaProject
         {
             int color;
             CreateBoard();
+            shuffleDeck();
             Player currentPlayer = new Player();
             Console.Write("Hello Welcome to Trivia Pursuit please enter a username: ");
             currentPlayer.userName =  Console.ReadLine();
@@ -33,7 +36,6 @@ namespace LocalTriviaProject
                 "\n5.Yellow\n6.Purple");
             }
             currentPlayer.Color = color;
-            Console.WriteLine(currentPlayer.Color);
             Console.ReadLine();
         }
 
@@ -320,6 +322,11 @@ namespace LocalTriviaProject
             board.Add(count, new BoardNode(0) { left = board[count - 1], Category = 1 });
             board[count - 1].right = board[count];
             board[blueStart].left = board[count];
+        }
+        private static void shuffleDeck()
+        {
+            Random rng = new Random();
+            playingDeck = Enumerable.Range(1, 94).OrderBy(i => rng.Next()).Take(94).ToList();
         }
     }
 }

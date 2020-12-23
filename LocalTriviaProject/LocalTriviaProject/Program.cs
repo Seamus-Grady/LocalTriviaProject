@@ -9,6 +9,7 @@ namespace LocalTriviaProject
     class Program
     {
         static Dictionary<int, BoardNode> board;
+        static Dictionary<int, Card> deck = CardParser.parseAndCreateDictionary();
         static int purpleStart;
         static int orangeStart;
         static int greenStart;

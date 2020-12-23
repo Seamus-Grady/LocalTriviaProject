@@ -48,7 +48,6 @@ namespace LocalTriviaProject
             CreateGreenPath(ref count);
             CreateOrangePath(ref count);
             CreateRestofBoard(ref count);
-
         }
         private static void CreateBluePath(ref int count)
         {

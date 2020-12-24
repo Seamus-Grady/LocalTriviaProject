@@ -17,6 +17,7 @@ namespace LocalTriviaProject
         public BoardNode straight { get; set; }
         public BoardNode backwards { get; set; }
         public int Category { get; set; }
+        public int position { get; set; }
         public int Type { get; set; }
 
         public int myType()

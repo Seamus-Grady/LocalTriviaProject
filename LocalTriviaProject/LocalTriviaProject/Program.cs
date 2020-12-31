@@ -30,27 +30,26 @@ namespace LocalTriviaProject
             currentPlayerTurn = true;
             Console.Write("Hello Welcome to Trivia Pursuit please enter a username: ");
             currentPlayer.userName =  Console.ReadLine();
-            Console.WriteLine(currentPlayer.userName);
-            Console.Clear();
+            ClearConsole();
             Console.WriteLine("What color would you like your piece?\n1.Pink\n2.Green\n3.Blue\n4.Orange" +
                 "\n5.Yellow\n6.Purple");
             while(!int.TryParse(Console.ReadLine(), out color) || color < 1 || color > 6)
             {
+                ClearConsole();
                 Console.WriteLine("Error incorrent input: Please enter a number 1-6");
                 Console.WriteLine("What color would you like your piece?\n1.Pink\n2.Green\n3.Blue\n4.Orange" +
                 "\n5.Yellow\n6.Purple");
             }
-            currentPlayer.Color = color;
-            Console.Clear();
+            ClearConsole();
             Console.WriteLine("What color position would you like to start at?\n1.Pink\n2.Green\n3.Blue\n4.Orange" +
                 "\n5.Yellow\n6.Purple");
             while (!int.TryParse(Console.ReadLine(), out position) || position < 1 || position > 6)
             {
+                ClearConsole();
                 Console.WriteLine("Error incorrent input: Please enter a number 1-6");
                 Console.WriteLine("What color would you like your piece?\n1.Pink\n2.Green\n3.Blue\n4.Orange" +
                 "\n5.Yellow\n6.Purple");
             }
-            Console.Clear();
             switch(position)
             {
                 case 1:
@@ -72,10 +71,10 @@ namespace LocalTriviaProject
                     currentPlayer.CurrentPosition = purpleStart;
                     break;         
             }
-            Console.ReadLine();
             while(currentPlayerTurn)
             {
-
+                ClearConsole();
+                PlayerTurn();
             }
         }
 
@@ -85,29 +84,150 @@ namespace LocalTriviaProject
             if (currentPlayer.Geography == 1 && currentPlayer.Entertainment == 1 && currentPlayer.History == 1 && currentPlayer.Art == 1
                 && currentPlayer.Science == 1 && currentPlayer.Sports == 1 && currentPlayer.CurrentPosition == 0)
             {
-                //finalRound();
+                finalRound();
             }
             diceRoll = new Random().Next(0, 6);
             Console.WriteLine("You rolled a " + diceRoll);
             MovePlayer(diceRoll, currentPlayer.CurrentPosition);
             if(board[currentPlayer.CurrentPosition].Category != 7)
             {
-                if(currentPlayer.CurrentPosition != blueStart || currentPlayer.CurrentPosition != pinkStart || currentPlayer.CurrentPosition != yellowStart 
-                    || currentPlayer.CurrentPosition != purpleStart || currentPlayer.CurrentPosition != greenStart || currentPlayer.CurrentPosition != orangeStart)
+                if(currentPlayer.CurrentPosition != blueStart && currentPlayer.Geography != 1 || currentPlayer.CurrentPosition != pinkStart && currentPlayer.Entertainment != 1 
+                    || currentPlayer.CurrentPosition != yellowStart && currentPlayer.History != 1 
+                    || currentPlayer.CurrentPosition != purpleStart && currentPlayer.Art != 1 || 
+                    currentPlayer.CurrentPosition != greenStart && currentPlayer.Science != 1 || currentPlayer.CurrentPosition != orangeStart && currentPlayer.Sports != 1)
                 {
-                    AskQuestion(currentPlayer.CurrentPosition, true);
+                    QuestionRound(currentPlayer.CurrentPosition, false);
                 }
                 else
                 {
-                    AskQuestion(currentPlayer.CurrentPosition, false);
+                    QuestionRound(currentPlayer.CurrentPosition, true);
                 }
                 
             }
         }
 
-        private static void AskQuestion(int currentPosition, bool isAPiece)
+        private static void finalRound()
         {
-            
+            throw new NotImplementedException();
+        }
+
+        private static void QuestionRound(int currentPostition, bool isAPiece)
+        {
+            string userAnswser;
+            int correctWords = 0;
+            int category;
+            string[] userAnswerA;
+            string realAnswer;
+            string[] realAnswerA;
+            if(currentPostition != 0)
+            {
+                realAnswer = AskQuestion(board[currentPostition].Category);
+            }
+            else
+            {
+                Console.WriteLine("You are currently on the center which category would you like to play? Please enter the number" +
+                    "\n1.Geography\n2.Entertainment\n3.History\n4.Art\n5.Science\n6.Sports\\Leisure");
+                string userchoice = Console.ReadLine();
+                while(!int.TryParse(userchoice, out category))
+                {
+                    Console.WriteLine("Incorrect Input please enter the number associated with the category");
+                    Console.WriteLine("You are currently on the center which category would you like to play?" +
+                    "\n1.Geography\n2.Entertainment\n3.History\n4.Art\n5.Science\n6.Sports\\Leisure");
+                    userchoice = Console.ReadLine();
+                }
+                realAnswer = AskQuestion(category);
+            }
+            userAnswser = Console.ReadLine();
+            userAnswerA = userAnswser.ToLower().Split();
+            realAnswerA = realAnswer.ToLower().Split();
+            if(realAnswerA.Length < userAnswerA.Length)
+            {
+                Console.WriteLine("Incorrect Answer, The correct answer is:" + realAnswer);
+                currentPlayerTurn = false;
+                return;
+            }
+            for(int i = 0; i < userAnswerA.Length; i++)
+            {
+                if(userAnswerA[i].Equals(realAnswerA[i]))
+                {
+                    correctWords++;
+                }
+            }
+            if(correctWords < realAnswerA.Length/2)
+            {
+                Console.WriteLine("Incorrect Answer, The correct answer is:" + realAnswer);
+                currentPlayerTurn = false;
+                return;
+            }
+            else
+            {
+                Console.WriteLine("Correct Good Job!");
+                Console.WriteLine("The Trivia Pursuit answer was:" + realAnswer);
+                if(isAPiece)
+                {
+                    Console.WriteLine("Congratulation " + currentPlayer.userName + " You gain a piece as well");
+                    switch(board[currentPostition].Category)
+                    {
+                        case 0:
+                            currentPlayer.Geography = 1;
+                            currentPlayerTurn = false;
+                            break;
+                        case 1:
+                            currentPlayer.Entertainment = 1;
+                            currentPlayerTurn = false;
+                            break;
+                        case 2:
+                            currentPlayer.History = 1;
+                            currentPlayerTurn = false;
+                            break;
+                        case 3:
+                            currentPlayer.Art = 1;
+                            currentPlayerTurn = false;
+                            break;
+                        case 4:
+                            currentPlayer.Science = 1;
+                            currentPlayerTurn = false;
+                            break;
+                        case 5:
+                            currentPlayer.Sports = 1;
+                            currentPlayerTurn = false;
+                            break;
+                    }
+                }
+            }
+        }
+
+        private static string AskQuestion(int category)
+        {
+            Card currentCard;
+            if(playingDeck.Count == 0)
+            {
+                shuffleDeck();
+            }
+            currentCard = deck[playingDeck[playingDeck.Count - 1]];
+            playingDeck.RemoveAt(playingDeck.Count - 1);
+            switch (category)
+            {
+                case 0:
+                    Console.WriteLine(currentCard.Geography);
+                    return currentCard.GeographyA;
+                case 1:
+                    Console.WriteLine(currentCard.Entertainment);
+                    return currentCard.EntertainmentA;
+                case 2:
+                    Console.WriteLine(currentCard.History);
+                    return currentCard.HistoryA;
+                case 3:
+                    Console.WriteLine(currentCard.Art);
+                    return currentCard.ArtA;
+                case 4:
+                    Console.WriteLine(currentCard.Science);
+                    return currentCard.ScienceA;
+                case 5:
+                    Console.WriteLine(currentCard.Sports);
+                    return currentCard.EntertainmentA;
+            }
+            return "";
         }
 
         private static void MovePlayer(int spaces, int currentPosition)
@@ -773,6 +893,14 @@ namespace LocalTriviaProject
             board[count - 1].right = board[count];
             board[blueStart].left = board[count];
             board[count].position = count;
+        }
+
+        private static void ClearConsole()
+        {
+            Console.Clear();
+            Console.WriteLine(currentPlayer.userName);
+            Console.WriteLine("Geography:" + currentPlayer.Geography + "Entertainment:" + currentPlayer.Entertainment + "History:" + currentPlayer.History +
+                "Art:" + currentPlayer.Art + "Science:" + currentPlayer.Science + "Sports/Leisure:" + currentPlayer.Sports);
         }
         private static void shuffleDeck()
         {

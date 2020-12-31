@@ -19,6 +19,7 @@ namespace LocalTriviaProject
         static int pinkStart;
         static int blueStart;
         static int yellowStart;
+        static bool currentPlayerTurn = false;
         static void Main(string[] args)
         {
             int color;
@@ -26,6 +27,7 @@ namespace LocalTriviaProject
             CreateBoard();
             shuffleDeck();
             currentPlayer = new Player();
+            currentPlayerTurn = true;
             Console.Write("Hello Welcome to Trivia Pursuit please enter a username: ");
             currentPlayer.userName =  Console.ReadLine();
             Console.WriteLine(currentPlayer.userName);
@@ -71,6 +73,10 @@ namespace LocalTriviaProject
                     break;         
             }
             Console.ReadLine();
+            while(currentPlayerTurn)
+            {
+
+            }
         }
 
         private static void PlayerTurn()
@@ -84,8 +90,26 @@ namespace LocalTriviaProject
             diceRoll = new Random().Next(0, 6);
             Console.WriteLine("You rolled a " + diceRoll);
             MovePlayer(diceRoll, currentPlayer.CurrentPosition);
-
+            if(board[currentPlayer.CurrentPosition].Category != 7)
+            {
+                if(currentPlayer.CurrentPosition != blueStart || currentPlayer.CurrentPosition != pinkStart || currentPlayer.CurrentPosition != yellowStart 
+                    || currentPlayer.CurrentPosition != purpleStart || currentPlayer.CurrentPosition != greenStart || currentPlayer.CurrentPosition != orangeStart)
+                {
+                    AskQuestion(currentPlayer.CurrentPosition, true);
+                }
+                else
+                {
+                    AskQuestion(currentPlayer.CurrentPosition, false);
+                }
+                
+            }
         }
+
+        private static void AskQuestion(int currentPosition, bool isAPiece)
+        {
+            
+        }
+
         private static void MovePlayer(int spaces, int currentPosition)
         {
             BoardNode left;
@@ -107,6 +131,110 @@ namespace LocalTriviaProject
                 Console.WriteLine("Choose a direction to move: Left, Right, Straight, Backwards or if their is that option Center");
                 choice = Console.ReadLine();
             }
+            switch(choice.ToLower())
+            {
+                case "straight":
+                    currentPlayer.CurrentPosition = straight.position;
+                    break;
+                case "left":
+                    currentPlayer.CurrentPosition = left.position;
+                    break;
+                case "right":
+                    currentPlayer.CurrentPosition = right.position;
+                    break;
+                case "backwards":
+                    currentPlayer.CurrentPosition = backwards.position;
+                    break;
+                case "center":
+                    currentPlayer.CurrentPosition = traversePaths(straight.position).position;
+                    break;
+            }
+        }
+        private static BoardNode traversePaths(int spaces)
+        {
+            Console.WriteLine("You are at the Center");
+            BoardNode blue = traverseAllPaths(1, spaces);
+            BoardNode pink = traverseAllPaths(7, spaces);
+            BoardNode yellow = traverseAllPaths(14, spaces);
+            BoardNode purple = traverseAllPaths(21, spaces);
+            BoardNode green = traverseAllPaths(28, spaces);
+            BoardNode orange = traverseAllPaths(35, spaces);
+            Console.WriteLine("Would you like to go down the Blue, Pink, Yellow, Purple, Green, or Orange Path?");
+            string choice = Console.ReadLine();
+            while (choice.ToLower() != "blue" || choice.ToLower() != "pink" || choice.ToLower() != "yellow" || choice.ToLower() != "green" || choice.ToLower() != "orange")
+            {
+                Console.WriteLine("Incorrect input");
+                Console.WriteLine("You are at the center would you like to go down the Blue, Pink, Yellow, Purple, Green, or Orange Path?");
+                choice = Console.ReadLine();
+            }
+            switch (choice.ToLower())
+            {
+                case "blue":
+                    return blue;
+                case "pink":
+                    return pink;
+                case "yellow":
+                    return yellow;
+                case "purple":
+                    return purple;
+                case "green":
+                    return green;
+                case "orange":
+                    return orange;
+            }
+            return null;
+        }
+        private static BoardNode traverseAllPaths(int spaces, int startposition)
+        {
+            string category = "";
+            string path = "";
+            switch (board[startposition + spaces].Category)
+            {
+                case 0:
+                    category = "Geography";
+                    break;
+                case 1:
+                    category = "Entertainment";
+                    break;
+                case 2:
+                    category = "History";
+                    break;
+                case 3:
+                    category = "Art";
+                    break;
+                case 4:
+                    category = "Science";
+                    break;
+                case 5:
+                    category = "Sports/Leisure";
+                    break;
+                case 6:
+                    category = "roll again";
+                    break;
+            }
+            switch(startposition)
+            {
+                case 1:
+                    path = "Blue Path";
+                    break;
+                case 7:
+                    path = "Pink Path";
+                    break;
+                case 14:
+                    path = "Yellow Path";
+                    break;
+                case 21:
+                    path = "Purple Path";
+                    break;
+                case 28:
+                    path = "Green Path";
+                    break;
+                case 35:
+                    path = "Orange Path";
+                    break;
+            }
+            Console.WriteLine("Moving Down the " + path + " " + spaces + " spaces will land you on the tile with " + category);
+            return board[startposition + spaces];
         }
         private static BoardNode traverseLeft(int spaces, int currentPosition)
         {

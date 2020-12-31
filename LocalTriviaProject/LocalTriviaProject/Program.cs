@@ -89,7 +89,7 @@ namespace LocalTriviaProject
             diceRoll = new Random().Next(0, 6);
             Console.WriteLine("You rolled a " + diceRoll);
             MovePlayer(diceRoll, currentPlayer.CurrentPosition);
-            if(board[currentPlayer.CurrentPosition].Category != 7)
+            if(board[currentPlayer.CurrentPosition].Category != 6)
             {
                 if(currentPlayer.CurrentPosition != blueStart && currentPlayer.Geography != 1 || currentPlayer.CurrentPosition != pinkStart && currentPlayer.Entertainment != 1 
                     || currentPlayer.CurrentPosition != yellowStart && currentPlayer.History != 1 
@@ -102,34 +102,68 @@ namespace LocalTriviaProject
                 {
                     QuestionRound(currentPlayer.CurrentPosition, true);
                 }
-                
             }
         }
 
         private static void finalRound()
         {
-            throw new NotImplementedException();
+            Random rng = new Random();
+            ClearConsole();
+            Console.WriteLine("The Final Round");
+            int category = rng.Next(0, 5);
+            string categoryS = "";
+            switch (category)
+            {
+                case 0:
+                    categoryS = "Geography";
+                    break;
+                case 1:
+                    categoryS = "Entertainment";
+                    break;
+                case 2:
+                    categoryS = "History";
+                    break;
+                case 3:
+                    categoryS = "Art";
+                    break;
+                case 4:
+                    categoryS = "Science";
+                    break;
+                case 5:
+                    categoryS = "Sports/Leisure";
+                    break;
+            }
+            Console.WriteLine("Your question category is " + categoryS + "\nGood Luck");
+            string realAnswer = AskQuestion(category);
+            answerQuestion(realAnswer, false, category);
+            if(currentPlayerTurn)
+            {
+                ClearConsole();
+                Console.WriteLine("Congratulations " + currentPlayer.userName + " You won!");
+            }
+            else
+            {
+                currentPlayerTurn = false;
+            }
         }
 
         private static void QuestionRound(int currentPostition, bool isAPiece)
-        {
-            string userAnswser;
-            int correctWords = 0;
+        {         
             int category;
-            string[] userAnswerA;
             string realAnswer;
-            string[] realAnswerA;
-            if(currentPostition != 0)
+            if (currentPostition != 0)
             {
                 realAnswer = AskQuestion(board[currentPostition].Category);
             }
             else
             {
+                ClearConsole();
                 Console.WriteLine("You are currently on the center which category would you like to play? Please enter the number" +
                     "\n1.Geography\n2.Entertainment\n3.History\n4.Art\n5.Science\n6.Sports\\Leisure");
                 string userchoice = Console.ReadLine();
-                while(!int.TryParse(userchoice, out category))
+                while (!int.TryParse(userchoice, out category))
                 {
+                    ClearConsole();
                     Console.WriteLine("Incorrect Input please enter the number associated with the category");
                     Console.WriteLine("You are currently on the center which category would you like to play?" +
                     "\n1.Geography\n2.Entertainment\n3.History\n4.Art\n5.Science\n6.Sports\\Leisure");
@@ -137,36 +171,47 @@ namespace LocalTriviaProject
                 }
                 realAnswer = AskQuestion(category);
             }
+            answerQuestion(realAnswer, isAPiece, board[currentPostition].Category);
+        }
+        private static void answerQuestion(string realAnswer, bool isAPiece, int category)
+        {
+            string userAnswser;
+            string[] userAnswerA;
+            string[] realAnswerA;
+            int correctWords = 0;
             userAnswser = Console.ReadLine();
             userAnswerA = userAnswser.ToLower().Split();
             realAnswerA = realAnswer.ToLower().Split();
-            if(realAnswerA.Length < userAnswerA.Length)
+            if (realAnswerA.Length < userAnswerA.Length)
             {
+                ClearConsole();
                 Console.WriteLine("Incorrect Answer, The correct answer is:" + realAnswer);
                 currentPlayerTurn = false;
                 return;
             }
-            for(int i = 0; i < userAnswerA.Length; i++)
+            for (int i = 0; i < userAnswerA.Length; i++)
             {
-                if(userAnswerA[i].Equals(realAnswerA[i]))
+                if (userAnswerA[i].Equals(realAnswerA[i]))
                 {
                     correctWords++;
                 }
             }
-            if(correctWords < realAnswerA.Length/2)
+            if (correctWords < realAnswerA.Length / 2)
             {
+                ClearConsole();
                 Console.WriteLine("Incorrect Answer, The correct answer is:" + realAnswer);
                 currentPlayerTurn = false;
                 return;
             }
             else
             {
+                ClearConsole();
                 Console.WriteLine("Correct Good Job!");
                 Console.WriteLine("The Trivia Pursuit answer was:" + realAnswer);
-                if(isAPiece)
+                if (isAPiece)
                 {
                     Console.WriteLine("Congratulation " + currentPlayer.userName + " You gain a piece as well");
-                    switch(board[currentPostition].Category)
+                    switch (category)
                     {
                         case 0:
                             currentPlayer.Geography = 1;
@@ -206,6 +251,7 @@ namespace LocalTriviaProject
             }
             currentCard = deck[playingDeck[playingDeck.Count - 1]];
             playingDeck.RemoveAt(playingDeck.Count - 1);
+            ClearConsole();
             switch (category)
             {
                 case 0:
@@ -247,6 +293,7 @@ namespace LocalTriviaProject
                 || choice.ToLower().Equals("straight") && straight == null || choice.ToLower().Equals("backwards") && backwards == null || choice.ToLower() != "left" 
                 && choice.ToLower() != "right" && choice.ToLower() != "straight" && choice.ToLower() != "backwards" && choice.ToLower() != "center")
             {
+                ClearConsole();
                 Console.WriteLine("Incorrect Input please make sure you are choose a direction with a valid tile");
                 Console.WriteLine("Choose a direction to move: Left, Right, Straight, Backwards or if their is that option Center");
                 choice = Console.ReadLine();
@@ -266,7 +313,10 @@ namespace LocalTriviaProject
                     currentPlayer.CurrentPosition = backwards.position;
                     break;
                 case "center":
-                    currentPlayer.CurrentPosition = traversePaths(straight.position).position;
+                    if(straight.position != 0)
+                    {
+                        currentPlayer.CurrentPosition = traversePaths(straight.position).position;
+                    }
                     break;
             }
         }
@@ -283,6 +333,7 @@ namespace LocalTriviaProject
             string choice = Console.ReadLine();
             while (choice.ToLower() != "blue" || choice.ToLower() != "pink" || choice.ToLower() != "yellow" || choice.ToLower() != "green" || choice.ToLower() != "orange")
             {
+                ClearConsole();
                 Console.WriteLine("Incorrect input");
                 Console.WriteLine("You are at the center would you like to go down the Blue, Pink, Yellow, Purple, Green, or Orange Path?");
                 choice = Console.ReadLine();
@@ -457,8 +508,8 @@ namespace LocalTriviaProject
                 }
                 if (currentNode.myType() == 1)
                 {
-                    Console.WriteLine("You can move " + (spaces - i) + " spaces to the Center");
-                    return new BoardNode(0) { position = spaces - i };
+                    Console.WriteLine("You can move " + (spaces - (i + 1)) + " spaces to the Center");
+                    return new BoardNode(0) { position = spaces - i - 1 };
                 }
                 else
                 {
@@ -899,8 +950,8 @@ namespace LocalTriviaProject
         {
             Console.Clear();
             Console.WriteLine(currentPlayer.userName);
-            Console.WriteLine("Geography:" + currentPlayer.Geography + "Entertainment:" + currentPlayer.Entertainment + "History:" + currentPlayer.History +
-                "Art:" + currentPlayer.Art + "Science:" + currentPlayer.Science + "Sports/Leisure:" + currentPlayer.Sports);
+            Console.WriteLine("Geography:" + currentPlayer.Geography + " Entertainment:" + currentPlayer.Entertainment + " History:" + currentPlayer.History +
+                " Art:" + currentPlayer.Art + " Science:" + currentPlayer.Science + " Sports/Leisure:" + currentPlayer.Sports);
         }
         private static void shuffleDeck()
         {

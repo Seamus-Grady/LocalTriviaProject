@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LocalTriviaProject
@@ -12,7 +13,6 @@ namespace LocalTriviaProject
         static Dictionary<int, Card> deck = CardParser.parseAndCreateDictionary();
         static List<int> playingDeck = new List<int>();
         static Player currentPlayer;
-        static string ShuffledOrder;
         static int purpleStart;
         static int orangeStart;
         static int greenStart;
@@ -86,21 +86,25 @@ namespace LocalTriviaProject
             {
                 finalRound();
             }
-            diceRoll = new Random().Next(0, 6);
+            Console.WriteLine(currentPlayer.userName + "'s Turn");
+            Console.WriteLine("Rolling Dice");
+            Thread.Sleep(1000);
+            diceRoll = new Random().Next(1, 6);
             Console.WriteLine("You rolled a " + diceRoll);
+            Thread.Sleep(1000);
             MovePlayer(diceRoll, currentPlayer.CurrentPosition);
             if(board[currentPlayer.CurrentPosition].Category != 6)
             {
-                if(currentPlayer.CurrentPosition != blueStart && currentPlayer.Geography != 1 || currentPlayer.CurrentPosition != pinkStart && currentPlayer.Entertainment != 1 
-                    || currentPlayer.CurrentPosition != yellowStart && currentPlayer.History != 1 
-                    || currentPlayer.CurrentPosition != purpleStart && currentPlayer.Art != 1 || 
-                    currentPlayer.CurrentPosition != greenStart && currentPlayer.Science != 1 || currentPlayer.CurrentPosition != orangeStart && currentPlayer.Sports != 1)
+                if(currentPlayer.CurrentPosition == blueStart && currentPlayer.Geography != 1 || currentPlayer.CurrentPosition == pinkStart && currentPlayer.Entertainment != 1 
+                    || currentPlayer.CurrentPosition == yellowStart && currentPlayer.History != 1 
+                    || currentPlayer.CurrentPosition == purpleStart && currentPlayer.Art != 1 || 
+                    currentPlayer.CurrentPosition == greenStart && currentPlayer.Science != 1 || currentPlayer.CurrentPosition == orangeStart && currentPlayer.Sports != 1)
                 {
-                    QuestionRound(currentPlayer.CurrentPosition, false);
+                    QuestionRound(currentPlayer.CurrentPosition, true);
                 }
                 else
                 {
-                    QuestionRound(currentPlayer.CurrentPosition, true);
+                    QuestionRound(currentPlayer.CurrentPosition, false);
                 }
             }
         }
@@ -187,13 +191,18 @@ namespace LocalTriviaProject
                 ClearConsole();
                 Console.WriteLine("Incorrect Answer, The correct answer is:" + realAnswer);
                 currentPlayerTurn = false;
+                Thread.Sleep(1000);
                 return;
             }
             for (int i = 0; i < userAnswerA.Length; i++)
             {
-                if (userAnswerA[i].Equals(realAnswerA[i]))
+                for(int j = 0; j < realAnswerA.Length; j++)
                 {
-                    correctWords++;
+                    if (userAnswerA[i].Equals(realAnswerA[j]))
+                    {
+                        correctWords++;
+                        break;
+                    }
                 }
             }
             if (correctWords < realAnswerA.Length / 2)
@@ -201,6 +210,7 @@ namespace LocalTriviaProject
                 ClearConsole();
                 Console.WriteLine("Incorrect Answer, The correct answer is:" + realAnswer);
                 currentPlayerTurn = false;
+                Thread.Sleep(1000);
                 return;
             }
             else
@@ -238,7 +248,9 @@ namespace LocalTriviaProject
                             currentPlayerTurn = false;
                             break;
                     }
+                    Thread.Sleep(1000);
                 }
+                Thread.Sleep(1000);
             }
         }
 
@@ -271,7 +283,7 @@ namespace LocalTriviaProject
                     return currentCard.ScienceA;
                 case 5:
                     Console.WriteLine(currentCard.Sports);
-                    return currentCard.EntertainmentA;
+                    return currentCard.SportsA;
             }
             return "";
         }

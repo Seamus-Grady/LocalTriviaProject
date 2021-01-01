@@ -459,7 +459,14 @@ namespace LocalTriviaProject
                     category = "roll again";
                     break;
             }
-            Console.WriteLine("Moving Left " + spaces + " spaces will land you on the tile with " + category);
+            if(currentNode.position == blueStart || currentNode.position == pinkStart || currentNode.position == yellowStart || currentNode.position == purpleStart || currentNode.position == greenStart || currentNode.position == orangeStart)
+            {
+                Console.WriteLine("Moving Left " + spaces + " spaces will land you on the tile for a piece with " + category);
+            }
+            else
+            {
+                Console.WriteLine("Moving Left " + spaces + " spaces will land you on the tile with " + category);
+            }
             return currentNode;
         }
 
@@ -503,7 +510,14 @@ namespace LocalTriviaProject
                     category = "roll again";
                     break;
             }
-            Console.WriteLine("Moving Right " + spaces + " spaces will land you on the tile with " + category);
+            if (currentNode.position == blueStart || currentNode.position == pinkStart || currentNode.position == yellowStart || currentNode.position == purpleStart || currentNode.position == greenStart || currentNode.position == orangeStart)
+            {
+                Console.WriteLine("Moving Right " + spaces + " spaces will land you on the tile for a piece with " + category);
+            }
+            else
+            {
+                Console.WriteLine("Moving Right " + spaces + " spaces will land you on the tile with " + category);
+            }
             return currentNode;
         }
 
@@ -552,7 +566,15 @@ namespace LocalTriviaProject
                     category = "roll again";
                     break;
             }
-            Console.WriteLine("Moving Straight " + spaces + " spaces will land you on the tile with " + category);
+            if(currentNode.position == 0)
+            {
+                Console.WriteLine("Moving Straight " + spaces + " spaces will land you on the Center tile");
+            }
+            else
+            {
+                Console.WriteLine("Moving Straight " + spaces + " spaces will land you on the tile with " + category);
+            }
+            
             return currentNode;
         }
 
@@ -596,7 +618,14 @@ namespace LocalTriviaProject
                     category = "roll again";
                     break;
             }
-            Console.WriteLine("Moving Backwards " + spaces + " spaces will land you on the tile with " + category);
+            if (currentNode.position == blueStart || currentNode.position == pinkStart || currentNode.position == yellowStart || currentNode.position == purpleStart || currentNode.position == greenStart || currentNode.position == orangeStart)
+            {
+                Console.WriteLine("Moving Backwards " + spaces + " spaces will land you on the tile for a piece with " + category);
+            }
+            else
+            {
+                Console.WriteLine("Moving Backwards " + spaces + " spaces will land you on the tile with " + category);
+            }
             return currentNode;
         }
 

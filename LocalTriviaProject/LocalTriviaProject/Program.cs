@@ -20,6 +20,8 @@ namespace LocalTriviaProject
         static int blueStart;
         static int yellowStart;
         static bool currentPlayerTurn = false;
+        static bool playerWin;
+        static int lossCount;
         static void Main(string[] args)
         {
             int color;
@@ -28,6 +30,8 @@ namespace LocalTriviaProject
             shuffleDeck();
             currentPlayer = new Player();
             currentPlayerTurn = true;
+            playerWin = false;
+            lossCount = 0;
             Console.Write("Hello Welcome to Trivia Pursuit please enter a username: ");
             currentPlayer.userName =  Console.ReadLine();
             ClearConsole();
@@ -35,7 +39,6 @@ namespace LocalTriviaProject
                 "\n5.Yellow\n6.Purple");
             while(!int.TryParse(Console.ReadLine(), out color) || color < 1 || color > 6)
             {
-                ClearConsole();
                 Console.WriteLine("Error incorrent input: Please enter a number 1-6");
                 Console.WriteLine("What color would you like your piece?\n1.Pink\n2.Green\n3.Blue\n4.Orange" +
                 "\n5.Yellow\n6.Purple");
@@ -45,7 +48,6 @@ namespace LocalTriviaProject
                 "\n5.Yellow\n6.Purple");
             while (!int.TryParse(Console.ReadLine(), out position) || position < 1 || position > 6)
             {
-                ClearConsole();
                 Console.WriteLine("Error incorrent input: Please enter a number 1-6");
                 Console.WriteLine("What color would you like your piece?\n1.Pink\n2.Green\n3.Blue\n4.Orange" +
                 "\n5.Yellow\n6.Purple");
@@ -71,11 +73,17 @@ namespace LocalTriviaProject
                     currentPlayer.CurrentPosition = purpleStart;
                     break;         
             }
-            while(currentPlayerTurn)
+            while(!playerWin)
             {
                 ClearConsole();
                 PlayerTurn();
+                if(!currentPlayerTurn)
+                {
+                    currentPlayerTurn = true;
+                    lossCount++;
+                }
             }
+            Console.ReadLine();
         }
 
         private static void PlayerTurn()
@@ -144,6 +152,7 @@ namespace LocalTriviaProject
             {
                 ClearConsole();
                 Console.WriteLine("Congratulations " + currentPlayer.userName + " You won!");
+                playerWin = true;
             }
             else
             {
@@ -167,7 +176,6 @@ namespace LocalTriviaProject
                 string userchoice = Console.ReadLine();
                 while (!int.TryParse(userchoice, out category))
                 {
-                    ClearConsole();
                     Console.WriteLine("Incorrect Input please enter the number associated with the category");
                     Console.WriteLine("You are currently on the center which category would you like to play?" +
                     "\n1.Geography\n2.Entertainment\n3.History\n4.Art\n5.Science\n6.Sports\\Leisure");
@@ -184,8 +192,9 @@ namespace LocalTriviaProject
             string[] realAnswerA;
             int correctWords = 0;
             userAnswser = Console.ReadLine();
-            userAnswerA = userAnswser.ToLower().Split();
-            realAnswerA = realAnswer.ToLower().Split();
+            char[] charsToTrim = { '.', '\"',',' };
+            userAnswerA = userAnswser.ToLower().Trim(charsToTrim).Split();
+            realAnswerA = realAnswer.ToLower().Trim(charsToTrim).Split();
             if (realAnswerA.Length < userAnswerA.Length)
             {
                 ClearConsole();
@@ -208,7 +217,7 @@ namespace LocalTriviaProject
             if (correctWords < realAnswerA.Length / 2)
             {
                 ClearConsole();
-                Console.WriteLine("Incorrect Answer, The correct answer is:" + realAnswer);
+                Console.WriteLine("Incorrect Answer, The correct answer is " + realAnswer);
                 currentPlayerTurn = false;
                 Thread.Sleep(1000);
                 return;
@@ -217,7 +226,7 @@ namespace LocalTriviaProject
             {
                 ClearConsole();
                 Console.WriteLine("Correct Good Job!");
-                Console.WriteLine("The Trivia Pursuit answer was:" + realAnswer);
+                Console.WriteLine("The Trivia Pursuit answer was " + realAnswer);
                 if (isAPiece)
                 {
                     Console.WriteLine("Congratulation " + currentPlayer.userName + " You gain a piece as well");
@@ -290,60 +299,66 @@ namespace LocalTriviaProject
 
         private static void MovePlayer(int spaces, int currentPosition)
         {
-            BoardNode left;
-            BoardNode right;
-            BoardNode straight;
-            BoardNode backwards;
-            string choice;
-            left = traverseLeft(spaces, currentPosition);
-            right = traverseRight(spaces, currentPosition);
-            straight = traverseStraight(spaces, currentPosition);
-            backwards = traverseBackwards(spaces, currentPosition);
-            Console.WriteLine("Choose a direction to move: Left, Right, Straight, Backwards or if their is that option Center");
-            choice = Console.ReadLine();
-            while (choice.ToLower().Equals("Center") && straight.straight == null || choice.ToLower().Equals("left") && left == null || choice.ToLower().Equals("right") && right == null
-                || choice.ToLower().Equals("straight") && straight == null || choice.ToLower().Equals("backwards") && backwards == null || choice.ToLower() != "left" 
-                && choice.ToLower() != "right" && choice.ToLower() != "straight" && choice.ToLower() != "backwards" && choice.ToLower() != "center")
+            if(currentPosition != 0)
             {
-                ClearConsole();
-                Console.WriteLine("Incorrect Input please make sure you are choose a direction with a valid tile");
+                BoardNode left;
+                BoardNode right;
+                BoardNode straight;
+                BoardNode backwards;
+                string choice;
+                left = traverseLeft(spaces, currentPosition);
+                right = traverseRight(spaces, currentPosition);
+                straight = traverseStraight(spaces, currentPosition);
+                backwards = traverseBackwards(spaces, currentPosition);
                 Console.WriteLine("Choose a direction to move: Left, Right, Straight, Backwards or if their is that option Center");
                 choice = Console.ReadLine();
+                while (choice.ToLower().Equals("center") && straight.Category != -1 || choice.ToLower().Equals("left") && left == null || choice.ToLower().Equals("right") && right == null
+                    || choice.ToLower().Equals("straight") && straight.Category == -1 || choice.ToLower().Equals("backwards") && backwards == null || choice.ToLower() != "left"
+                    && choice.ToLower() != "right" && choice.ToLower() != "straight" && choice.ToLower() != "backwards" && choice.ToLower() != "center")
+                {
+                    Console.WriteLine("Incorrect Input please make sure you are choose a direction with a valid tile");
+                    Console.WriteLine("Choose a direction to move: Left, Right, Straight, Backwards or if their is that option Center");
+                    choice = Console.ReadLine();
+                }
+                switch (choice.ToLower())
+                {
+                    case "straight":
+                        currentPlayer.CurrentPosition = straight.position;
+                        break;
+                    case "left":
+                        currentPlayer.CurrentPosition = left.position;
+                        break;
+                    case "right":
+                        currentPlayer.CurrentPosition = right.position;
+                        break;
+                    case "backwards":
+                        currentPlayer.CurrentPosition = backwards.position;
+                        break;
+                    case "center":
+                        if (straight.position != 0)
+                        {
+                            currentPlayer.CurrentPosition = traversePaths(straight.position).position;
+                        }
+                        break;
+                }
             }
-            switch(choice.ToLower())
+            else
             {
-                case "straight":
-                    currentPlayer.CurrentPosition = straight.position;
-                    break;
-                case "left":
-                    currentPlayer.CurrentPosition = left.position;
-                    break;
-                case "right":
-                    currentPlayer.CurrentPosition = right.position;
-                    break;
-                case "backwards":
-                    currentPlayer.CurrentPosition = backwards.position;
-                    break;
-                case "center":
-                    if(straight.position != 0)
-                    {
-                        currentPlayer.CurrentPosition = traversePaths(straight.position).position;
-                    }
-                    break;
-            }
+                currentPlayer.CurrentPosition = traversePaths(spaces).position;
+            }   
         }
         private static BoardNode traversePaths(int spaces)
         {
             Console.WriteLine("You are at the Center");
-            BoardNode blue = traverseAllPaths(1, spaces);
-            BoardNode pink = traverseAllPaths(7, spaces);
-            BoardNode yellow = traverseAllPaths(14, spaces);
-            BoardNode purple = traverseAllPaths(21, spaces);
-            BoardNode green = traverseAllPaths(28, spaces);
-            BoardNode orange = traverseAllPaths(35, spaces);
+            BoardNode blue = traverseAllPaths(spaces, 1);
+            BoardNode pink = traverseAllPaths(spaces, 7);
+            BoardNode yellow = traverseAllPaths(spaces, 13);
+            BoardNode purple = traverseAllPaths(spaces, 19);
+            BoardNode green = traverseAllPaths(spaces, 25);
+            BoardNode orange = traverseAllPaths(spaces, 31);
             Console.WriteLine("Would you like to go down the Blue, Pink, Yellow, Purple, Green, or Orange Path?");
             string choice = Console.ReadLine();
-            while (choice.ToLower() != "blue" || choice.ToLower() != "pink" || choice.ToLower() != "yellow" || choice.ToLower() != "green" || choice.ToLower() != "orange")
+            while (!choice.ToLower().Equals("blue") || !choice.ToLower().Equals("pink") || !choice.ToLower().Equals("yellow") || !choice.ToLower().Equals("green") || !choice.ToLower().Equals("orange"))
             {
                 ClearConsole();
                 Console.WriteLine("Incorrect input");
@@ -371,7 +386,7 @@ namespace LocalTriviaProject
         {
             string category = "";
             string path = "";
-            switch (board[startposition + spaces].Category)
+            switch (board[startposition + (spaces - 1)].Category)
             {
                 case 0:
                     category = "Geography";
@@ -403,21 +418,21 @@ namespace LocalTriviaProject
                 case 7:
                     path = "Pink Path";
                     break;
-                case 14:
+                case 13:
                     path = "Yellow Path";
                     break;
-                case 21:
+                case 19:
                     path = "Purple Path";
                     break;
-                case 28:
+                case 25:
                     path = "Green Path";
                     break;
-                case 35:
+                case 31:
                     path = "Orange Path";
                     break;
             }
             Console.WriteLine("Moving Down the " + path + " " + spaces + " spaces will land you on the tile with " + category);
-            return board[startposition + spaces];
+            return board[startposition + (spaces - 1)];
         }
         private static BoardNode traverseLeft(int spaces, int currentPosition)
         {
@@ -527,20 +542,17 @@ namespace LocalTriviaProject
             string category = "";
             for (int i = 0; i < spaces; i++)
             {
+                if (currentNode.myType() == 1)
+                {
+                    Console.WriteLine("You can move " + i + " spaces to the Center");
+                    return new BoardNode(0) { position = spaces - i, Category = -1 };
+                }
                 if (currentNode.straight == null)
                 {
                     Console.WriteLine("You can't traverse Straight");
                     return null;
                 }
-                if (currentNode.myType() == 1)
-                {
-                    Console.WriteLine("You can move " + (spaces - (i + 1)) + " spaces to the Center");
-                    return new BoardNode(0) { position = spaces - i - 1 };
-                }
-                else
-                {
-                    currentNode = currentNode.straight;
-                }
+                currentNode = currentNode.straight;
             }
             switch (currentNode.Category)
             {
@@ -981,7 +993,7 @@ namespace LocalTriviaProject
             board[count - 1].right = board[count];
             board[count].position = count;
             count++;
-            board.Add(count, new BoardNode(0) { left = board[count - 1], Category = 1 });
+            board.Add(count, new BoardNode(0) { left = board[count - 1], right = board[blueStart], Category = 1 });
             board[count - 1].right = board[count];
             board[blueStart].left = board[count];
             board[count].position = count;

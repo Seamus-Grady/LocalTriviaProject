@@ -998,7 +998,6 @@ namespace LocalTriviaProject
             board[blueStart].left = board[count];
             board[count].position = count;
         }
-
         private static void ClearConsole()
         {
             Console.Clear();
